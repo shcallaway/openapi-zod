@@ -1,0 +1,244 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: A sample API demonstrating different HTTP methods
+  version: 1.0.0
+
+servers:
+  - url: http://api.example.com/v1
+
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+          required: true
+          description: The ID of the pet
+        name:
+          type: string
+          required: false
+          description: The name of the pet
+          nullable: true
+          default: "Fluffy"
+        species:
+          $ref: "#/components/schemas/Species"
+          required: true
+          default: "cat"
+        owner_id:
+          type: integer
+          required: true
+          description: The ID of the owner
+
+    Owner:
+      type: object
+      properties:
+        id:
+          type: integer
+          required: true
+          description: The ID of the owner
+        name:
+          type: string
+          required: true
+          description: The name of the owner
+
+    Species:
+      type: string
+      enum:
+        - "cat"
+        - "dog"
+
+    ListPetsResponseBody:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pet"
+          required: true
+          default: []
+        count:
+          type: integer
+          required: true
+
+    CreatePetRequestBody:
+      type: object
+      properties:
+        name:
+          type: string
+          required: false
+        species:
+          $ref: "#/components/schemas/Species"
+          required: false
+
+paths:
+  /owners/{id}:
+    get:
+      summary: Get an owner
+      description: Retrieve details of a specific owner by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the owner to retrieve
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        "404":
+          description: Owner not found
+
+  /owners:
+    get:
+      summary: Get all owners
+      description: Retrieve details of all owners
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Owner"
+
+  /pets/{id}/owners:
+    get:
+      summary: Get a pet's owners
+      description: Retrieve details of a specific pet's owners by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the pet to retrieve
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Owner"
+        "404":
+          description: Pet not found
+
+  /pets/{id}:
+    get:
+      summary: Get a pet
+      description: Retrieve details of a specific pet by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the pet to retrieve
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "404":
+          description: Pet not found
+
+    put:
+      summary: Update a pet
+      description: Update an existing pet by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePetRequestBody"
+      responses:
+        "200":
+          description: Pet updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+
+    delete:
+      summary: Delete a pet
+      description: Remove a pet from the system
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Pet deleted successfully
+
+    patch:
+      summary: Partially update a pet
+      description: Update specific fields of an existing pet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePetRequestBody"
+      responses:
+        "200":
+          description: Pet partially updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+
+  /pets:
+    get:
+      summary: Get all pets
+      description: Retrieve a list of all pets
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListPetsResponseBody"
+
+    post:
+      summary: Create a new pet
+      description: Add a new pet to the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePetRequestBody"
+      responses:
+        "200":
+          description: Pet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"

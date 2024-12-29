@@ -1,0 +1,29 @@
+{
+  "name": "openapi-zod",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@9.1.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist",
+    "build": "pnpm tsc",
+    "dev": "pnpm clean && pnpm build && pnpm start",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "Sherwood Callaway",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.5.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "zod": "^3.24.1"
+  }
+}
