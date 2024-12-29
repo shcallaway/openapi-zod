@@ -7,7 +7,7 @@ const createSchemaName = (
     .split("/")
     .map((part) => {
       const cleanPart = part.replace(/[{}]/g, "");
-      return capitalize(cleanPart);
+      return capitalize(cleanPart.split("_").map(capitalize).join(""));
     })
     .join("")}${suffix}`;
 };

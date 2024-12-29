@@ -72,6 +72,13 @@ components:
           $ref: "#/components/schemas/Species"
           required: false
 
+    GroomingTool:
+      type: object
+      properties:
+        id:
+          type: integer
+          required: true
+
 paths:
   /owners/{id}:
     get:
@@ -112,6 +119,20 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Owner"
+
+  /grooming_tools:
+    get:
+      summary: Get all grooming tools
+      description: Retrieve details of all grooming tools
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroomingTool"
 
   /pets/{id}/owners:
     get:
