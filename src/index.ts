@@ -99,7 +99,7 @@ fileLines.push(`export interface Request<
   QueryParams extends Record<string, any>
 > extends ExpressRequest{
   body: Body;
-  path: PathParams;
+  params: PathParams;
   query: QueryParams;
 };`);
 
