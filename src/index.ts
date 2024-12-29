@@ -68,8 +68,9 @@ const fileLines = [
 ];
 
 // Add zod schemas
-fileLines.push("import { z } from 'zod';");
 fileLines.push("/* ZOD SCHEMAS */");
+
+fileLines.push("import { z } from 'zod';");
 
 const zodSchemas = generateZodSchemas(openApiDocument);
 
@@ -90,19 +91,22 @@ for (const schemaName of Object.keys(zodSchemas)) {
 // Add server types
 fileLines.push("/* SERVER */");
 
-fileLines.push(`export type Request<
+fileLines.push("import { Request as ExpressRequest } from 'express';");
+
+fileLines.push(`export interface Request<
   Body,
   PathParams extends Record<string, any>,
   QueryParams extends Record<string, any>
-> = {
+> extends ExpressRequest{
   body: Body;
-  pathParams: PathParams;
-  queryParams: QueryParams;
+  path: PathParams;
+  query: QueryParams;
 };`);
 
 fileLines.push(`export type Response<Body> = {
-  status: 200 | 404;
+  status: 200 | 404 | 301 | 302;
   body?: Body;
+  headers?: Record<string, string>
 };`);
 
 fileLines.push(`export interface Handler<
