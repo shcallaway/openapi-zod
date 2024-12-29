@@ -1,6 +1,6 @@
 {
   "name": "@shcallaway/openapi-zod",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Generate Zod schemas, TypeScript types, and server stubs from an OpenAPI schema document.",
   "main": "dist/index.js",
   "engines": {
@@ -12,7 +12,8 @@
     "clean": "rm -rf dist",
     "build": "pnpm tsc",
     "dev": "pnpm clean && pnpm build && pnpm start",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "pnpm clean && pnpm build"
   },
   "keywords": [],
   "author": "Sherwood Callaway",
