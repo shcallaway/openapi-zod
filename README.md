@@ -15,5 +15,5 @@ pnpm openapi-zod --schema ./openapi.yaml --output ./generated/api.ts
 
 ```bash
 pnpm login
-pnpm publish
+pnpm publish --access public
 ```
