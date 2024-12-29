@@ -16,7 +16,8 @@ const createHandlerName = (method: string, path: string) => {
     .map((part) => {
       // Remove brackets from path parameters
       const cleanPart = part.replace(/[{}]/g, "");
-      return capitalize(cleanPart);
+      // Split on underscores and capitalize each part
+      return cleanPart.split("_").map(capitalize).join("");
     })
     .join("");
 
