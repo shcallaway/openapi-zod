@@ -20,7 +20,7 @@ const argv = yargs(hideBin(process.argv))
     output: {
       type: "string",
       description: "Output path for generated TypeScript file",
-      default: "openapi-zod.ts",
+      default: "api.ts",
     },
   })
   .help().argv;

@@ -1,7 +1,7 @@
 {
-  "name": "openapi-zod",
+  "name": "@shcallaway/openapi-zod",
   "version": "1.0.0",
-  "description": "",
+  "description": "Generate Zod schemas, TypeScript types, and server stubs from an OpenAPI schema document.",
   "main": "index.js",
   "engines": {
     "node": ">=20.0.0"
