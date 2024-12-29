@@ -1,17 +1,42 @@
 import * as yaml from "js-yaml";
 import * as fs from "fs";
 import path from "path";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 import { OpenApiDocument } from "./lib/types";
 
 import { generateZodSchemas } from "./lib/generateZodSchemas";
 import { generateHandlerTypes } from "./lib/generateHandlerTypes";
 
-// TODO: Make these into args
-const OPENAPI_FILE_NAME = "openapi.yaml";
-const OUTPUT_FILE_NAME = "openApi.ts";
+// Parse CLI arguments
+const argv = yargs(hideBin(process.argv))
+  .options({
+    schema: {
+      type: "string",
+      description: "Path to OpenAPI schema YAML file",
+      demandOption: true,
+    },
+    output: {
+      type: "string",
+      description: "Output path for generated TypeScript file",
+      default: "openapi-zod.ts",
+    },
+  })
+  .help().argv;
 
-const openApiDocumentFilePath = path.join(process.cwd(), OPENAPI_FILE_NAME);
+const openApiDocumentFilePath = path.resolve(
+  process.cwd(),
+  (argv as any).schema
+);
+
+const outputFilePath = path.resolve(process.cwd(), (argv as any).output);
+
+// Create output directory if it doesn't exist
+const outputDir = path.dirname(outputFilePath);
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
 
 const openApiDocumentFileContent = fs.readFileSync(
   openApiDocumentFilePath,
@@ -22,16 +47,18 @@ const openApiDocument = yaml.load(
   openApiDocumentFileContent
 ) as OpenApiDocument;
 
-// Ensure the generated directory exists and is empty
-const generatedDirPath = path.join(process.cwd(), "generated");
+// Ensure the output directory exists
+const outputDirPath = path.dirname(outputFilePath);
 
-if (fs.existsSync(generatedDirPath)) {
-  fs.rmSync(generatedDirPath, { recursive: true });
+// Remove output file if it exists
+if (fs.existsSync(outputFilePath)) {
+  fs.unlinkSync(outputFilePath);
 }
 
-fs.mkdirSync(generatedDirPath, { recursive: true });
-
-const outputFilePath = path.join(generatedDirPath, OUTPUT_FILE_NAME);
+// Create output directory if needed
+if (!fs.existsSync(outputDirPath)) {
+  fs.mkdirSync(outputDirPath, { recursive: true });
+}
 
 // Add file header
 const fileLines = [

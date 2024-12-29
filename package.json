@@ -20,10 +20,12 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.5.0",
+    "@types/yargs": "^17.0.33",
     "typescript": "^5.1.6"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
+    "yargs": "^17.7.2",
     "zod": "^3.24.1"
   }
 }
