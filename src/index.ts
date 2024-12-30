@@ -104,7 +104,7 @@ fileLines.push(`export interface Request<
 };`);
 
 fileLines.push(`export type Response<Body> = {
-  status: 200 | 404 | 301 | 302;
+  status: 200 | 404 | 301 | 302 | 400;
   body?: Body;
   headers?: Record<string, string>
 };`);
