@@ -1,10 +1,10 @@
-export class HttpError extends Error {
+export default `export class HttpError extends Error {
   constructor(
     public status: number,
     public statusText: string,
     public body: any
   ) {
-    super(`HTTP Error ${status}: ${statusText}`);
+    super(\`HTTP Error \${status}: \${statusText}\`);
     this.name = "HttpError";
   }
 };
@@ -46,7 +46,7 @@ export const httpRequest = async <
 
   // Add path params
   url.pathname += Object.entries(params)
-    .map(([key, value]) => `/${key}/${value}`)
+    .map(([key, value]) => \`/\${key}/\${value}\`)
     .join("");
 
   // Add query params
@@ -84,4 +84,4 @@ export const httpRequest = async <
     status: response.status,
     body: responseBody,
   };
-};
+};`;

@@ -1,4 +1,4 @@
-import { Request as ExpressRequest } from 'express';
+export default `import { Request as ExpressRequest } from 'express';
 
 export interface Request<
   Body,
@@ -23,4 +23,4 @@ export interface Handler<
   ResBody
 > {
   (req: Request<ReqBody, ReqPathParams, ReqQueryParams>): Promise<Response<ResBody>>;
-};
+};`;

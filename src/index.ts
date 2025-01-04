@@ -6,13 +6,14 @@ import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { readFile } from "./lib/utils";
-
 import { OpenApiDocument } from "./lib/types";
 
 import { generateZodSchemas } from "./lib/generateZodSchemas";
 import { generateHandlerTypes } from "./lib/generateHandlerTypes";
 import { generateClients } from "./lib/generateClients";
+
+import Handler from "./templates/server/Handler";
+import HttpRequest from "./templates/client/HttpRequest";
 
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -36,8 +37,6 @@ const openApiDocumentFilePath = path.resolve(
 );
 
 const outputFilePath = path.resolve(process.cwd(), (argv as any).output);
-
-const templatesDirPath = path.resolve(__dirname, "templates");
 
 // Create output directory if it doesn't exist
 const outputDir = path.dirname(outputFilePath);
@@ -97,7 +96,7 @@ for (const schemaName of Object.keys(zodSchemas)) {
 // Add server handlers
 fileLines.push("/* SERVER */");
 
-fileLines.push(readFile(`${templatesDirPath}/server/handler.txt`));
+fileLines.push(Handler);
 
 const handlerTypes = generateHandlerTypes(openApiDocument);
 
@@ -106,7 +105,7 @@ fileLines.push(...handlerTypes);
 // Add client functions
 fileLines.push("/* CLIENT */");
 
-fileLines.push(readFile(`${templatesDirPath}/client/http-request.txt`));
+fileLines.push(HttpRequest);
 
 const clientTypes = generateClients(openApiDocument);
 
