@@ -37,7 +37,7 @@ const openApiDocumentFilePath = path.resolve(
 
 const outputFilePath = path.resolve(process.cwd(), (argv as any).output);
 
-const templatesDirPath = path.resolve(process.cwd(), "templates");
+const templatesDirPath = path.resolve(__dirname, "templates");
 
 // Create output directory if it doesn't exist
 const outputDir = path.dirname(outputFilePath);
