@@ -10,6 +10,7 @@ import { OpenApiDocument } from "./lib/types";
 
 import { generateZodSchemas } from "./lib/generateZodSchemas";
 import { generateHandlerTypes } from "./lib/generateHandlerTypes";
+import { generateClientTypes } from "./lib/generateClientTypes";
 
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -88,7 +89,7 @@ for (const schemaName of Object.keys(zodSchemas)) {
   );
 }
 
-// Add server types
+// Add server handlers
 fileLines.push("/* SERVER */");
 
 fileLines.push("import { Request as ExpressRequest } from 'express';");
@@ -121,5 +122,46 @@ fileLines.push(`export interface Handler<
 const handlerTypes = generateHandlerTypes(openApiDocument);
 
 fileLines.push(...handlerTypes);
+
+// Add client functions
+fileLines.push("/* CLIENT */");
+
+fileLines.push(`export const httpRequest = async <ReqBody, ResBody>(
+  baseUrl: string,
+  path: string,
+  pathParams: Record<string, any>,
+  queryParams: Record<string, any>,
+  method: string,
+  body?: ReqBody,
+  headers?: Record<string, string>
+): Promise<ResBody> => {
+  // Build URL
+  const url = new URL(baseUrl + path);
+
+  // Add path params
+  url.pathname += Object.entries(pathParams)
+    .map(([key, value]) => \`/\${key}/\${value}\`)
+    .join("");
+
+  // Add query params
+  url.search = new URLSearchParams(queryParams).toString();
+
+  // Perform request
+  const response = await fetch(url.toString(), {
+    method,
+    body: body ? JSON.stringify(body) : undefined,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+  });
+
+  // Return parsed response
+  return response.json();
+};`);
+
+const clientTypes = generateClientTypes(openApiDocument);
+
+fileLines.push(...clientTypes);
 
 fs.writeFileSync(outputFilePath, fileLines.join("\n\n"));

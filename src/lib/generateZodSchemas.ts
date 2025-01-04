@@ -30,10 +30,10 @@ export const generateZodSchemas = (
     // Handle object schemas
     if ((openApiSchema as OpenApiSchemaType).type === "object") {
       // Create zod schema for each property
-      const zodProperties = Object.entries(
+      const zodProperties: [key: string, schema: string][] = Object.entries(
         (openApiSchema as OpenApiSchemaObject).properties || {}
       ).map(([key, value]: [string, any]) => {
-        let zodPropertySchema = createZodSchema(value);
+        let propertySchema = createZodSchema(value);
 
         // Use default values for required, nullable, default, and description
         const isRequired = value.required || false;
@@ -43,12 +43,12 @@ export const generateZodSchemas = (
 
         // Add optional() if the property is not required
         if (!isRequired) {
-          zodPropertySchema += ".optional()";
+          propertySchema += ".optional()";
         }
 
         // Add nullable() if the property is nullable
         if (isNullable) {
-          zodPropertySchema += ".nullable()";
+          propertySchema += ".nullable()";
         }
 
         // Add default value if the property has a default value
@@ -74,21 +74,35 @@ export const generateZodSchemas = (
             }
           })();
 
-          zodPropertySchema += `.default(${defaultValue})`;
+          propertySchema += `.default(${defaultValue})`;
         }
 
         // Add description if the property has a description
         if (hasDescription) {
-          zodPropertySchema += `.describe(${JSON.stringify(
-            value.description
-          )})`;
+          propertySchema += `.describe(${JSON.stringify(value.description)})`;
         }
 
-        // Wrap property name in quotes just in case the name itself is funky
-        return `"${key}": ${zodPropertySchema}`;
+        return [key, propertySchema];
       });
 
-      return `z.object({ ${zodProperties.join(", ")} }).strict()`;
+      // Combine properties into a single object
+      const zodObj = zodProperties.reduce(
+        (acc: Record<string, string>, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      // Format object properties as a string
+      const zodObjProperties = Object.entries(zodObj)
+        .map(([key, value]) => `  "${key}": ${value}`)
+        .join(",\n");
+
+      // Format entire Zod object as a string
+      return `z.object({${
+        zodObjProperties.length > 0 ? `\n${zodObjProperties}\n` : ""
+      }}).strict()`;
     }
 
     // Handle array schemas
@@ -191,7 +205,8 @@ export const generateZodSchemas = (
           if (pathParams.length > 0) {
             const schemaName = createPathParamSchemaName(method, path);
 
-            const schemaObj = pathParams.reduce(
+            // Create Zod object for path parameters
+            const zodObj = pathParams.reduce(
               (acc: Record<string, string>, param: OpenApiParameter) => {
                 acc[param.name] = createZodSchema(param.schema);
                 return acc;
@@ -199,13 +214,15 @@ export const generateZodSchemas = (
               {} as Record<string, string>
             );
 
-            const schemaEntries = Object.entries(schemaObj)
-              .map(([key, value]) => `  ${key}: ${value}`)
+            // Format Zod object properties as a string
+            const zodObjProperties = Object.entries(zodObj)
+              .map(([key, value]) => `  "${key}": ${value}`)
               .join(",\n");
 
-            zodSchemas[
-              schemaName
-            ] = `z.object({\n${schemaEntries}\n}).strict()`;
+            // Format entire Zod object as a string
+            zodSchemas[schemaName] = `z.object({${
+              zodObjProperties.length > 0 ? `\n${zodObjProperties}\n` : ""
+            }}).strict()`;
           }
         }
       }
@@ -224,7 +241,8 @@ export const generateZodSchemas = (
           if (queryParams.length > 0) {
             const schemaName = createQueryParamSchemaName(method, path);
 
-            const schemaObj = queryParams.reduce(
+            // Create Zod object for query parameters
+            const zodObj = queryParams.reduce(
               (acc: Record<string, string>, param: OpenApiParameter) => {
                 acc[param.name] = createZodSchema(param.schema);
                 return acc;
@@ -232,13 +250,15 @@ export const generateZodSchemas = (
               {} as Record<string, string>
             );
 
-            const schemaEntries = Object.entries(schemaObj)
-              .map(([key, value]) => `  ${key}: ${value}`)
+            // Format Zod object properties as a string
+            const zodObjProperties = Object.entries(zodObj)
+              .map(([key, value]) => `  "${key}": ${value}`)
               .join(",\n");
 
-            zodSchemas[
-              schemaName
-            ] = `z.object({\n${schemaEntries}\n}).strict()`;
+            // Format entire Zod object as a string
+            zodSchemas[schemaName] = `z.object({${
+              zodObjProperties.length > 0 ? `\n${zodObjProperties}\n` : ""
+            }}).strict()`;
           }
         }
       }
