@@ -47,7 +47,7 @@ export const httpRequest = async <
   // Build URL with path params
   let pathWithParams = path;
   for (const [key, value] of Object.entries(params)) {
-      pathWithParams = pathWithParams.replace(\`{\${key}}\`, encodeURIComponent(value));
+    pathWithParams = pathWithParams.replace(\`{\${key}}\`, encodeURIComponent(String(value)));
   }
 
   // Create URL with full path
@@ -55,7 +55,7 @@ export const httpRequest = async <
 
   // Add query params
   for (const [key, value] of Object.entries(query)) {
-      url.searchParams.append(key, value);
+    url.searchParams.append(key, String(value));
   }
 
   // Perform request
