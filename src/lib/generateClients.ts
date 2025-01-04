@@ -102,7 +102,7 @@ export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
   args: ${argsInterfaceName}
 ) => {
   return httpRequest<${finalRequestType}, ${finalPathParamsType}, ${finalQueryParamsType}, ${finalResponseType}>({
-    baseUrl: "${baseUrl}",
+    baseUrl: args.baseUrl ?? "${baseUrl}",
     path: "${path}",
     method: "${method.toUpperCase()}",
     ...args,
