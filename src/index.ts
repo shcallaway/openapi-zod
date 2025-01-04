@@ -37,6 +37,8 @@ const openApiDocumentFilePath = path.resolve(
 
 const outputFilePath = path.resolve(process.cwd(), (argv as any).output);
 
+const templatesDirPath = path.resolve(process.cwd(), "templates");
+
 // Create output directory if it doesn't exist
 const outputDir = path.dirname(outputFilePath);
 if (!fs.existsSync(outputDir)) {
@@ -95,7 +97,7 @@ for (const schemaName of Object.keys(zodSchemas)) {
 // Add server handlers
 fileLines.push("/* SERVER */");
 
-fileLines.push(readFile("templates/server/handler.txt"));
+fileLines.push(readFile(`${templatesDirPath}/server/handler.txt`));
 
 const handlerTypes = generateHandlerTypes(openApiDocument);
 
@@ -104,7 +106,7 @@ fileLines.push(...handlerTypes);
 // Add client functions
 fileLines.push("/* CLIENT */");
 
-fileLines.push(readFile("templates/client/http-request.txt"));
+fileLines.push(readFile(`${templatesDirPath}/client/http-request.txt`));
 
 const clientTypes = generateClients(openApiDocument);
 
