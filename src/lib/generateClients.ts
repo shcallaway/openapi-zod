@@ -23,9 +23,7 @@ const createClientFunctionName = (method: string, path: string) => {
   return `${method}${capitalize(normalizedPath)}`;
 };
 
-export const generateClientTypes = (
-  openApiDocument: OpenApiDocument
-): string[] => {
+export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
   const fileLines: string[] = [];
 
   if (!openApiDocument.paths) {

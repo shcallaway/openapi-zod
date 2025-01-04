@@ -10,7 +10,7 @@ import { OpenApiDocument } from "./lib/types";
 
 import { generateZodSchemas } from "./lib/generateZodSchemas";
 import { generateHandlerTypes } from "./lib/generateHandlerTypes";
-import { generateClientTypes } from "./lib/generateClientTypes";
+import { generateClients } from "./lib/generateClients";
 
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -160,7 +160,7 @@ fileLines.push(`export const httpRequest = async <ReqBody, ResBody>(
   return response.json();
 };`);
 
-const clientTypes = generateClientTypes(openApiDocument);
+const clientTypes = generateClients(openApiDocument);
 
 fileLines.push(...clientTypes);
 
