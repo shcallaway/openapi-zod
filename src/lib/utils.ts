@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 const createSchemaName = (
   method: string,
   path: string,
@@ -26,4 +28,8 @@ export const createQueryParamSchemaName = (method: string, path: string) =>
 
 export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const readFile = (path: string) => {
+  return fs.readFileSync(path, "utf-8");
 };

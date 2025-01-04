@@ -6,6 +6,8 @@ import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
+import { readFile } from "./lib/utils";
+
 import { OpenApiDocument } from "./lib/types";
 
 import { generateZodSchemas } from "./lib/generateZodSchemas";
@@ -63,8 +65,9 @@ if (!fs.existsSync(outputDirPath)) {
   fs.mkdirSync(outputDirPath, { recursive: true });
 }
 
-// Add file header
+// Create file lines array
 const fileLines = [
+  // Include a warning at the top of the file
   "/* This file was auto-generated. Do not edit it directly. */",
 ];
 
@@ -92,32 +95,7 @@ for (const schemaName of Object.keys(zodSchemas)) {
 // Add server handlers
 fileLines.push("/* SERVER */");
 
-fileLines.push("import { Request as ExpressRequest } from 'express';");
-
-fileLines.push(`export interface Request<
-  Body,
-  PathParams extends Record<string, any>,
-  QueryParams extends Record<string, any>
-> extends ExpressRequest{
-  body: Body;
-  params: PathParams;
-  query: QueryParams;
-};`);
-
-fileLines.push(`export type Response<Body> = {
-  status: 200 | 404 | 301 | 302;
-  body?: Body;
-  headers?: Record<string, string>
-};`);
-
-fileLines.push(`export interface Handler<
-  ReqBody,
-  ReqPathParams extends Record<string, any>,
-  ReqQueryParams extends Record<string, any>,
-  ResBody
-> {
-  (req: Request<ReqBody, ReqPathParams, ReqQueryParams>): Promise<Response<ResBody>>;
-};`);
+fileLines.push(readFile("templates/server/handler.txt"));
 
 const handlerTypes = generateHandlerTypes(openApiDocument);
 
@@ -126,65 +104,7 @@ fileLines.push(...handlerTypes);
 // Add client functions
 fileLines.push("/* CLIENT */");
 
-fileLines.push(`export interface HttpRequestArgs<
-  ReqBody,
-  ReqPathParams extends Record<string, any>,
-  ReqQueryParams extends Record<string, any>
-> {
-  baseUrl: string;
-  path: string;
-  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
-  params?: ReqPathParams;
-  query?: ReqQueryParams;
-  body?: ReqBody;
-  headers?: Record<string, string>;
-}`);
-
-fileLines.push(`export const httpRequest = async <
-  ReqBody,
-  ReqPathParams extends Record<string, any>,
-  ReqQueryParams extends Record<string, any>,
-  ResBody
->(
-  args: HttpRequestArgs<ReqBody, ReqPathParams, ReqQueryParams>
-): Promise<ResBody> => {
-  const {
-    baseUrl,
-    path,
-    method,
-    params = {},
-    query = {},
-    body,
-    headers,
-  } = args;
-
-  // Build URL
-  const url = new URL(baseUrl + path);
-
-  // Add path params
-  url.pathname += Object.entries(params)
-    .map(([key, value]) => \`/\${key}/\${value}\`)
-    .join("");
-
-  // Add query params
-  url.search = new URLSearchParams(query).toString();
-
-  // Perform request
-  const response = await fetch(
-    url.toString(),
-    {
-      method,
-      body: body ? JSON.stringify(body) : undefined,
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-    }
-  );
-
-  // Return parsed response
-  return response.json();
-};`);
+fileLines.push(readFile("templates/client/http-request.txt"));
 
 const clientTypes = generateClients(openApiDocument);
 
