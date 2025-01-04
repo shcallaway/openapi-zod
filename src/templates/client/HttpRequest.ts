@@ -44,16 +44,19 @@ export const httpRequest = async <
     headers,
   } = args;
 
-  // Build URL
-  const url = new URL(baseUrl + path);
+  // Build URL with path params
+  let pathWithParams = path;
+  for (const [key, value] of Object.entries(params)) {
+      pathWithParams = pathWithParams.replace(\`{\${key}}\`, encodeURIComponent(value));
+  }
 
-  // Add path params
-  url.pathname += Object.entries(params)
-    .map(([key, value]) => \`/\${key}/\${value}\`)
-    .join("");
+  // Create URL with full path
+  const url = new URL(\`\${baseUrl}\${pathWithParams}\`);
 
   // Add query params
-  url.search = new URLSearchParams(query).toString();
+  for (const [key, value] of Object.entries(query)) {
+      url.searchParams.append(key, value);
+  }
 
   // Perform request
   const response = await fetch(url.toString(), {
