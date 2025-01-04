@@ -30,7 +30,10 @@ export const httpRequest = async <
   ResBody
 >(
   args: HttpRequestArgs<ReqBody, ReqPathParams, ReqQueryParams>
-): Promise<{ status: number; body: ResBody }> => {
+): Promise<{
+  status: number;
+  body?: ResBody;
+}> => {
   const {
     baseUrl,
     path,
@@ -63,11 +66,14 @@ export const httpRequest = async <
   });
 
   let responseBody;
-  const contentType = response.headers.get("content-type");
 
-  if (contentType?.includes("application/json")) {
+  const contentType = response.headers.get("Content-Type");
+
+  // If the response is successful and the content type is JSON, attempt to parse the body
+  if (response.status >= 200 && response.status < 300 && contentType?.includes("application/json")) {
     try {
-      responseBody = await response.json();
+      // TODO(Sherwood): We should validate the response body against the schema here
+      responseBody = await response.json() as ResBody;
     } catch (error) {
       throw new HttpError(
         response.status,
@@ -75,9 +81,6 @@ export const httpRequest = async <
         "Invalid JSON response body"
       );
     }
-  } else {
-    // For non-JSON responses, get the raw text
-    responseBody = await response.text();
   }
 
   return {

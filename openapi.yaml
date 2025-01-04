@@ -30,6 +30,15 @@ components:
           type: integer
           required: true
           description: The ID of the owner
+        details:
+          type: object
+          required: false
+          description: Various details about the pet
+          properties:
+            age:
+              type: integer
+              required: false
+              description: The age of the pet
 
     Owner:
       type: object

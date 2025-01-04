@@ -101,18 +101,12 @@ export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
       fileLines.push(`export const ${functionName} = (
   args: ${argsInterfaceName}
 ) => {
-  return httpRequest<
-    ${finalRequestType},
-    ${finalPathParamsType},
-    ${finalQueryParamsType},
-    ${finalResponseType}
-  >(
-    {
-      baseUrl: "${baseUrl}",
-      path: "${path}",
-      method: "${method.toUpperCase()}",
-      ...args,
-    });
+  return httpRequest<${finalRequestType}, ${finalPathParamsType}, ${finalQueryParamsType}, ${finalResponseType}>({
+    baseUrl: "${baseUrl}",
+    path: "${path}",
+    method: "${method.toUpperCase()}",
+    ...args,
+  });
 }`);
     }
   }

@@ -96,12 +96,12 @@ export const generateZodSchemas = (
 
       // Format object properties as a string
       const zodObjProperties = Object.entries(zodObj)
-        .map(([key, value]) => `  "${key}": ${value}`)
-        .join(",\n");
+        .map(([key, value]) => `"${key}": ${value}`)
+        .join(", ");
 
       // Format entire Zod object as a string
       return `z.object({${
-        zodObjProperties.length > 0 ? `\n${zodObjProperties}\n` : ""
+        zodObjProperties.length > 0 ? `${zodObjProperties}` : ""
       }}).strict()`;
     }
 
@@ -216,12 +216,12 @@ export const generateZodSchemas = (
 
             // Format Zod object properties as a string
             const zodObjProperties = Object.entries(zodObj)
-              .map(([key, value]) => `  "${key}": ${value}`)
-              .join(",\n");
+              .map(([key, value]) => `"${key}": ${value}`)
+              .join(", ");
 
             // Format entire Zod object as a string
             zodSchemas[schemaName] = `z.object({${
-              zodObjProperties.length > 0 ? `\n${zodObjProperties}\n` : ""
+              zodObjProperties.length > 0 ? `${zodObjProperties}` : ""
             }}).strict()`;
           }
         }
@@ -252,12 +252,12 @@ export const generateZodSchemas = (
 
             // Format Zod object properties as a string
             const zodObjProperties = Object.entries(zodObj)
-              .map(([key, value]) => `  "${key}": ${value}`)
-              .join(",\n");
+              .map(([key, value]) => `"${key}": ${value}`)
+              .join(", ");
 
             // Format entire Zod object as a string
             zodSchemas[schemaName] = `z.object({${
-              zodObjProperties.length > 0 ? `\n${zodObjProperties}\n` : ""
+              zodObjProperties.length > 0 ? `${zodObjProperties}` : ""
             }}).strict()`;
           }
         }
