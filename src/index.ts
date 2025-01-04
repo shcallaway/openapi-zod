@@ -126,35 +126,61 @@ fileLines.push(...handlerTypes);
 // Add client functions
 fileLines.push("/* CLIENT */");
 
-fileLines.push(`export const httpRequest = async <ReqBody, ResBody>(
-  baseUrl: string,
-  path: string,
-  pathParams: Record<string, any>,
-  queryParams: Record<string, any>,
-  method: string,
-  body?: ReqBody,
-  headers?: Record<string, string>
+fileLines.push(`export interface HttpRequestArgs<
+  ReqBody,
+  ReqPathParams extends Record<string, any>,
+  ReqQueryParams extends Record<string, any>
+> {
+  baseUrl: string;
+  path: string;
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  params?: ReqPathParams;
+  query?: ReqQueryParams;
+  body?: ReqBody;
+  headers?: Record<string, string>;
+}`);
+
+fileLines.push(`export const httpRequest = async <
+  ReqBody,
+  ReqPathParams extends Record<string, any>,
+  ReqQueryParams extends Record<string, any>,
+  ResBody
+>(
+  args: HttpRequestArgs<ReqBody, ReqPathParams, ReqQueryParams>
 ): Promise<ResBody> => {
+  const {
+    baseUrl,
+    path,
+    method,
+    params = {},
+    query = {},
+    body,
+    headers,
+  } = args;
+
   // Build URL
   const url = new URL(baseUrl + path);
 
   // Add path params
-  url.pathname += Object.entries(pathParams)
+  url.pathname += Object.entries(params)
     .map(([key, value]) => \`/\${key}/\${value}\`)
     .join("");
 
   // Add query params
-  url.search = new URLSearchParams(queryParams).toString();
+  url.search = new URLSearchParams(query).toString();
 
   // Perform request
-  const response = await fetch(url.toString(), {
-    method,
-    body: body ? JSON.stringify(body) : undefined,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-  });
+  const response = await fetch(
+    url.toString(),
+    {
+      method,
+      body: body ? JSON.stringify(body) : undefined,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+    }
+  );
 
   // Return parsed response
   return response.json();

@@ -30,6 +30,13 @@ export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
     return fileLines;
   }
 
+  if (!openApiDocument.servers) {
+    throw new Error("No servers found in OpenAPI document");
+  }
+
+  // Use the first server as the client's base URL
+  const baseUrl = openApiDocument.servers[0].url;
+
   // Iterate through paths and generate client functions
   for (const [path, methods] of Object.entries(openApiDocument.paths)) {
     for (const [method, operation] of Object.entries(methods)) {
@@ -62,14 +69,14 @@ export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
       // Create args interface
       const argsInterfaceName = `${capitalize(functionName)}Args`;
 
-      const argsInterfaceLines = [`  baseUrl: string,`];
+      const argsInterfaceLines = [`  baseUrl?: string,`];
 
       if (pathParamsType) {
-        argsInterfaceLines.push(`  pathParams: ${pathParamsType},`);
+        argsInterfaceLines.push(`  params: ${pathParamsType},`);
       }
 
       if (queryParamsType) {
-        argsInterfaceLines.push(`  queryParams: ${queryParamsType},`);
+        argsInterfaceLines.push(`  query: ${queryParamsType},`);
       }
 
       if (requestType) {
@@ -88,22 +95,25 @@ export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
 
       const finalRequestType = requestType ? requestType : "undefined";
       const finalResponseType = responseType ? responseType : "undefined";
+      const finalPathParamsType = pathParamsType ? pathParamsType : "{}";
+      const finalQueryParamsType = queryParamsType ? queryParamsType : "{}";
 
-      fileLines.push(
-        `export const ${functionName} = (
+      fileLines.push(`export const ${functionName} = (
   args: ${argsInterfaceName}
 ) => {
-  return httpRequest<${finalRequestType}, ${finalResponseType}>(
-    args.baseUrl,
-    "${path}",
-    args["pathParams"] || {},
-    args["queryParams"] || {},
-    "${method.toUpperCase()}",
-    args["body"],
-    args["headers"]
-  );
-}`
-      );
+  return httpRequest<
+    ${finalRequestType},
+    ${finalPathParamsType},
+    ${finalQueryParamsType},
+    ${finalResponseType}
+  >(
+    {
+      baseUrl: "${baseUrl}",
+      path: "${path}",
+      method: "${method.toUpperCase()}",
+      ...args,
+    });
+}`);
     }
   }
 

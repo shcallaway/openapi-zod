@@ -1,4 +1,7 @@
 export interface OpenApiDocument {
+  servers: {
+    url: string;
+  }[];
   components?: {
     schemas?: Record<string, OpenApiSchema>;
   };
