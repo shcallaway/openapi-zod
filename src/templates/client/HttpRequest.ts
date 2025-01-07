@@ -55,7 +55,20 @@ export const httpRequest = async <
 
   // Add query params
   for (const [key, value] of Object.entries(query)) {
-    url.searchParams.append(key, String(value));
+    switch (true) {
+      case Array.isArray(value):
+        // Handle arrays by appending each value separately
+        value.forEach(item => url.searchParams.append(key, String(item)));
+        break;
+      case value !== null && typeof value === 'object':
+        // Handle objects by stringifying them
+        url.searchParams.append(key, JSON.stringify(value));
+        break;
+      default:
+        // Handle primitives by converting to string
+        url.searchParams.append(key, String(value));
+        break;
+    }
   }
 
   // Perform request

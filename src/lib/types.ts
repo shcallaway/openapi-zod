@@ -28,6 +28,8 @@ export interface OpenApiParameter {
   schema: OpenApiSchema;
   required?: boolean;
   description?: string;
+  default?: any;
+  nullable?: boolean;
 }
 
 export interface OpenApiRequestBody {
