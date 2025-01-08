@@ -13,7 +13,7 @@ import { generateHandlerTypes } from "./lib/generateHandlerTypes";
 import { generateClients } from "./lib/generateClients";
 
 import Handler from "./templates/server/Handler";
-import HttpRequest from "./templates/client/HttpRequest";
+import httpRequest from "./templates/client/httpRequest";
 
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -105,7 +105,7 @@ fileLines.push(...handlerTypes);
 // Add client functions
 fileLines.push("/* CLIENT */");
 
-fileLines.push(HttpRequest);
+fileLines.push(httpRequest);
 
 const clientTypes = generateClients(openApiDocument);
 

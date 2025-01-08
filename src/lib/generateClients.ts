@@ -83,9 +83,7 @@ export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
         argsInterfaceLines.push(`  body: ${requestType},`);
       }
 
-      if (operation.headers) {
-        argsInterfaceLines.push(`  headers?: Record<string, string>,`);
-      }
+      argsInterfaceLines.push(`  headers?: Record<string, string>,`);
 
       fileLines.push(
         `export interface ${argsInterfaceName} {\n${argsInterfaceLines.join(
