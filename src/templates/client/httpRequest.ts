@@ -56,6 +56,9 @@ export const httpRequest = async <
   // Add query params
   for (const [key, value] of Object.entries(query)) {
     switch (true) {
+      case value === undefined:
+        // Handle undefined by excluding the param altogether
+        break;
       case Array.isArray(value):
         // Handle arrays by appending each value separately
         value.forEach(item => url.searchParams.append(key, String(item)));
