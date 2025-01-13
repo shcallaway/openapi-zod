@@ -59,6 +59,10 @@ export const httpRequest = async <
       case value === undefined:
         // Handle undefined by excluding the param altogether
         break;
+      case value instanceof Date:
+        // Handle Date objects by converting to ISO string
+        url.searchParams.append(key, value.toISOString());
+        break;
       case Array.isArray(value):
         // Handle arrays by appending each value separately
         value.forEach(item => url.searchParams.append(key, String(item)));
