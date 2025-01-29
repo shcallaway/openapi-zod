@@ -1,5 +1,4 @@
 import { OpenApiDocument, OpenApiOperation } from "./types";
-import { Request as ExpressRequest } from "express";
 
 import {
   capitalize,
