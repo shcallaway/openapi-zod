@@ -44,7 +44,7 @@ export interface OpenApiRequestBody {
 }
 
 export interface OpenApiResponses {
-  "200": OpenApiResponse;
+  [statusCode: string]: OpenApiResponse;
 }
 
 export interface OpenApiResponse {
@@ -69,6 +69,10 @@ export interface OpenApiSchemaType extends OpenApiSchemaBase {
 
 export interface OpenApiSchemaString extends OpenApiSchemaType {
   type: "string";
+  format?: "email" | "uuid" | "date-time" | "date" | "uri";
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
 }
 
 export interface OpenApiSchemaEnum extends OpenApiSchemaType {
@@ -78,10 +82,14 @@ export interface OpenApiSchemaEnum extends OpenApiSchemaType {
 
 export interface OpenApiSchemaNumber extends OpenApiSchemaType {
   type: "number";
+  minimum?: number;
+  maximum?: number;
 }
 
 export interface OpenApiSchemaInteger extends OpenApiSchemaType {
   type: "integer";
+  minimum?: number;
+  maximum?: number;
 }
 
 export interface OpenApiSchemaBoolean extends OpenApiSchemaType {
@@ -91,11 +99,14 @@ export interface OpenApiSchemaBoolean extends OpenApiSchemaType {
 export interface OpenApiSchemaArray extends OpenApiSchemaType {
   type: "array";
   items: OpenApiSchema;
+  minItems?: number;
+  maxItems?: number;
 }
 
 export interface OpenApiSchemaObject extends OpenApiSchemaType {
   type: "object";
   properties: Record<string, OpenApiSchemaProperty>;
+  required?: string[];
 }
 
 export interface OpenApiSchemaRef extends OpenApiSchemaBase {
