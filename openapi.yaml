@@ -11,46 +11,68 @@ components:
   schemas:
     Pet:
       type: object
+      required:
+        - id
+        - species
+        - owner_id
       properties:
         id:
           type: integer
-          required: true
           description: The ID of the pet
+          minimum: 1
         name:
           type: string
-          required: false
           description: The name of the pet
           nullable: true
           default: "Fluffy"
+          minLength: 1
+          maxLength: 50
+          pattern: "^[a-zA-Z0-9 ]*$"
         species:
           $ref: "#/components/schemas/Species"
-          required: true
           default: "cat"
         owner_id:
           type: integer
-          required: true
           description: The ID of the owner
+          minimum: 1
         details:
           type: object
-          required: false
           description: Various details about the pet
           properties:
             age:
               type: integer
-              required: false
               description: The age of the pet
+              minimum: 0
+              maximum: 50
+            email:
+              type: string
+              format: email
+              description: Contact email for the pet
+            website:
+              type: string
+              format: uri
+              description: Pet's social media profile
 
     Owner:
       type: object
+      required:
+        - id
+        - name
       properties:
         id:
           type: integer
-          required: true
           description: The ID of the owner
+          minimum: 1
         name:
           type: string
-          required: true
           description: The name of the owner
+          minLength: 2
+          maxLength: 100
+          pattern: "^[a-zA-Z ]*$"
+        email:
+          type: string
+          format: email
+          description: The owner's email address
 
     Species:
       type: string
@@ -60,33 +82,57 @@ components:
 
     ListPetsResponseBody:
       type: object
+      required:
+        - items
+        - count
       properties:
         items:
           type: array
           items:
             $ref: "#/components/schemas/Pet"
-          required: true
-          default: []
+          minItems: 0
+          maxItems: 100
+          description: List of pets
         count:
           type: integer
-          required: true
+          minimum: 0
+          description: Total number of pets
 
     CreatePetRequestBody:
       type: object
       properties:
         name:
           type: string
-          required: false
         species:
           $ref: "#/components/schemas/Species"
-          required: false
 
     GroomingTool:
       type: object
+      required:
+        - id
       properties:
         id:
           type: integer
-          required: true
+
+    PetStats:
+      type: object
+      required:
+        - id
+        - from_date
+      properties:
+        id:
+          type: integer
+        from_date:
+          type: string
+          format: date
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
 
 paths:
   /owners/{id}:
@@ -106,12 +152,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
+                $ref: "#/components/schemas/Owner"
         "404":
           description: Owner not found
 
@@ -272,3 +313,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pet"
+
+  /pets/{id}/stats:
+    get:
+      summary: Get pet statistics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Pet statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetStats"
+        "404":
+          description: Pet not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
