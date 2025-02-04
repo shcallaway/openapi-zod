@@ -11,7 +11,7 @@ export interface Request<
 };
 
 export type Response<Body> = {
-  status: 200 | 404 | 301 | 302;
+  status: 200 | 400 | 404 | 301 | 302;
   body?: Body;
   headers?: Record<string, string>
 };
