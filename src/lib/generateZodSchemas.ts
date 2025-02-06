@@ -20,6 +20,8 @@ import {
   createRequestBodySchemaName,
   createResponseBodySchemaName,
 } from "./utils";
+import { GeneratorConfig } from "./GeneratorConfig";
+import { BaseGenerator } from "./BaseGenerator";
 
 export const resolveRef = (ref: string): string => {
   return ref.replace(/^#\/components\/schemas\//, "");
@@ -28,7 +30,11 @@ export const resolveRef = (ref: string): string => {
 /**
  * Generator class for converting OpenAPI schemas to Zod schemas
  */
-class ZodSchemaGenerator {
+class ZodSchemaGenerator extends BaseGenerator {
+  constructor(config: GeneratorConfig) {
+    super(config);
+  }
+
   /**
    * Type guard to check if a schema is an object schema
    * @param schema - The OpenAPI schema to check
@@ -52,28 +58,6 @@ class ZodSchemaGenerator {
       zodObjectProperties.length > 0 ? zodObjectProperties.join(", ") : "";
 
     return `z.object({${propertiesContent}}).strict()`;
-  }
-
-  /**
-   * Iterates over paths in an OpenAPI document
-   * @param openApiDocument - The OpenAPI document
-   * @param callback - Callback function to execute for each path
-   */
-  private iterateOverPaths(
-    openApiDocument: OpenApiDocument,
-    callback: (
-      path: string,
-      method: string,
-      operation: OpenApiOperation
-    ) => void
-  ): void {
-    if (!openApiDocument.paths) return;
-
-    for (const [path, pathItem] of Object.entries(openApiDocument.paths)) {
-      for (const [method, operation] of Object.entries(pathItem)) {
-        callback(path, method, operation);
-      }
-    }
   }
 
   /**
@@ -445,8 +429,9 @@ class ZodSchemaGenerator {
  * @returns Record of schema names to Zod schema strings
  */
 export const generateZodSchemas = (
-  openApiDocument: OpenApiDocument
+  openApiDocument: OpenApiDocument,
+  config: GeneratorConfig
 ): Record<string, string> => {
-  const generator = new ZodSchemaGenerator();
+  const generator = new ZodSchemaGenerator(config);
   return generator.generateSchemas(openApiDocument);
 };

@@ -1,3 +1,4 @@
 dist
 node_modules
-openapi-zod.ts
+.DS_Store
+api.ts
