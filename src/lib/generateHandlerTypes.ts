@@ -1,5 +1,4 @@
 import { OpenApiDocument, OpenApiOperation } from "./types";
-
 import {
   capitalize,
   createPathParamSchemaName,
@@ -7,38 +6,27 @@ import {
   createRequestBodySchemaName,
   createResponseBodySchemaName,
 } from "./utils";
+import { BaseGenerator } from "./BaseGenerator";
+import { templates } from "./templates";
+import { GeneratorConfig } from "./GeneratorConfig";
 
 /**
  * Generator class for creating Express handler types from OpenAPI specs
  */
-class HandlerTypesGenerator {
+class HandlerTypesGenerator extends BaseGenerator {
+  constructor(config: GeneratorConfig) {
+    super(config);
+  }
+
   /**
-   * Converts a path to a handler name, e.g. "/pets/{id}" -> "getPetsId"
-   * @param method - HTTP method
-   * @param path - URL path
-   * @returns Handler name
+   * Converts a path to a handler name, e.g. "/pets/{id}" -> "getPetsIdHandler"
    */
   private createHandlerName(method: string, path: string): string {
-    const pathParts = path.split("/").filter(Boolean);
-
-    const normalizedPath = pathParts
-      .map((part) => {
-        // Remove brackets from path parameters
-        const cleanPart = part.replace(/[{}]/g, "");
-        // Split on underscores and capitalize each part
-        return cleanPart.split("_").map(capitalize).join("");
-      })
-      .join("");
-
-    return `${method}${capitalize(normalizedPath)}Handler`;
+    return this.createNameFromPath(method, path, "Handler");
   }
 
   /**
    * Generates type information for a single handler
-   * @param method - HTTP method
-   * @param path - URL path
-   * @param operation - OpenAPI operation object
-   * @returns Handler type information
    */
   private generateHandlerType(
     method: string,
@@ -87,31 +75,7 @@ class HandlerTypesGenerator {
   }
 
   /**
-   * Iterates over paths in an OpenAPI document
-   * @param openApiDocument - The OpenAPI document
-   * @param callback - Callback function to execute for each path
-   */
-  private iterateOverPaths(
-    openApiDocument: OpenApiDocument,
-    callback: (
-      path: string,
-      method: string,
-      operation: OpenApiOperation
-    ) => void
-  ): void {
-    if (!openApiDocument.paths) return;
-
-    for (const [path, pathItem] of Object.entries(openApiDocument.paths)) {
-      for (const [method, operation] of Object.entries(pathItem)) {
-        callback(path, method, operation);
-      }
-    }
-  }
-
-  /**
    * Generates handler types for all paths in an OpenAPI document
-   * @param openApiDocument - The OpenAPI document
-   * @returns Array of handler type declarations
    */
   public generateTypes(openApiDocument: OpenApiDocument): string[] {
     const fileLines: string[] = [];
@@ -133,7 +97,16 @@ class HandlerTypesGenerator {
       const queryParamsTypeString = queryParamsType ? queryParamsType : "{}";
 
       fileLines.push(
-        `export type ${name} = Handler<${requestType}, ${pathParamsTypeString}, ${queryParamsTypeString}, ${responseType}>;`
+        templates.handler(
+          {
+            name,
+            requestType: requestType ?? "undefined",
+            pathParamsType: pathParamsTypeString,
+            queryParamsType: queryParamsTypeString,
+            responseType: responseType ?? "{}",
+          },
+          this.config
+        )
       );
     });
 
@@ -143,12 +116,11 @@ class HandlerTypesGenerator {
 
 /**
  * Generates handler types from an OpenAPI document
- * @param openApiDocument - The OpenAPI document to generate types from
- * @returns Array of handler type declarations
  */
 export const generateHandlerTypes = (
-  openApiDocument: OpenApiDocument
+  openApiDocument: OpenApiDocument,
+  config: GeneratorConfig
 ): string[] => {
-  const generator = new HandlerTypesGenerator();
+  const generator = new HandlerTypesGenerator(config);
   return generator.generateTypes(openApiDocument);
 };

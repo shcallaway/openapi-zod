@@ -96,12 +96,16 @@ export class FileUtils {
 
 // Re-export utility functions for backward compatibility
 export const capitalize = StringUtils.capitalize.bind(StringUtils);
+
 export const createRequestBodySchemaName =
   StringUtils.createRequestBodySchemaName.bind(StringUtils);
+
 export const createResponseBodySchemaName =
   StringUtils.createResponseBodySchemaName.bind(StringUtils);
+
 export const createPathParamSchemaName =
   StringUtils.createPathParamSchemaName.bind(StringUtils);
+
 export const createQueryParamSchemaName =
   StringUtils.createQueryParamSchemaName.bind(StringUtils);
 

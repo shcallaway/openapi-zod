@@ -12,8 +12,8 @@ import { generateZodSchemas } from "./lib/generateZodSchemas";
 import { generateHandlerTypes } from "./lib/generateHandlerTypes";
 import { generateClients } from "./lib/generateClients";
 
-import Handler from "./templates/server/Handler";
-import httpRequest from "./templates/client/httpRequest";
+import { templates } from "./lib/templates";
+import { createConfig } from "./lib/createConfig";
 
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -30,6 +30,8 @@ const argv = yargs(hideBin(process.argv))
     },
   })
   .help().argv;
+
+const generatorConfig = createConfig();
 
 const openApiDocumentFilePath = path.resolve(
   process.cwd(),
@@ -67,47 +69,44 @@ if (!fs.existsSync(outputDirPath)) {
 }
 
 // Create file lines array
-const fileLines = [
-  // Include a warning at the top of the file
-  "/* This file was auto-generated. Do not edit it directly. */",
-];
+const fileLines = [templates.fileHeader({}, generatorConfig)];
 
 // Add zod schemas
 fileLines.push("/* ZOD SCHEMAS */");
 
-fileLines.push("import { z } from 'zod';");
+fileLines.push(templates.zodImport({}, generatorConfig));
 
-const zodSchemas = generateZodSchemas(openApiDocument);
+const zodSchemas = generateZodSchemas(openApiDocument, generatorConfig);
 
 // Add schemas
 for (const [schemaName, zodSchema] of Object.entries(zodSchemas)) {
-  fileLines.push(`export const ${schemaName}Schema = ${zodSchema};`);
+  fileLines.push(
+    templates.schemaExport({ schemaName, zodSchema }, generatorConfig)
+  );
 }
 
 // Add TypeScript types inferred from zod schemas
 fileLines.push("/* TYPES */");
 
 for (const schemaName of Object.keys(zodSchemas)) {
-  fileLines.push(
-    `export type ${schemaName} = z.infer<typeof ${schemaName}Schema>;`
-  );
+  fileLines.push(templates.schemaType({ schemaName }, generatorConfig));
 }
 
 // Add server handlers
 fileLines.push("/* SERVER */");
 
-fileLines.push(Handler);
+fileLines.push(templates.handlerInterface({}, generatorConfig));
 
-const handlerTypes = generateHandlerTypes(openApiDocument);
+const handlerTypes = generateHandlerTypes(openApiDocument, generatorConfig);
 
 fileLines.push(...handlerTypes);
 
 // Add client functions
 fileLines.push("/* CLIENT */");
 
-fileLines.push(httpRequest);
+fileLines.push(templates.httpRequest({}, generatorConfig));
 
-const clientTypes = generateClients(openApiDocument);
+const clientTypes = generateClients(openApiDocument, generatorConfig);
 
 fileLines.push(...clientTypes);
 

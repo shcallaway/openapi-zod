@@ -6,38 +6,26 @@ import {
   createRequestBodySchemaName,
   createResponseBodySchemaName,
 } from "./utils";
+import { BaseGenerator } from "./BaseGenerator";
+import { GeneratorConfig } from "./GeneratorConfig";
 
 /**
  * Generator class for creating API client functions from OpenAPI specs
  */
-class ClientGenerator {
+class ClientGenerator extends BaseGenerator {
+  constructor(config: GeneratorConfig) {
+    super(config);
+  }
+
   /**
    * Converts a path to a client function name, e.g. "/pets/{id}" -> "getPetsId"
-   * @param method - HTTP method
-   * @param path - URL path
-   * @returns Client function name
    */
   private createClientFunctionName(method: string, path: string): string {
-    const pathParts = path.split("/").filter(Boolean);
-
-    const normalizedPath = pathParts
-      .map((part) => {
-        // Remove brackets from path parameters
-        const cleanPart = part.replace(/[{}]/g, "");
-        // Split on underscores and capitalize each part
-        return cleanPart.split("_").map(capitalize).join("");
-      })
-      .join("");
-
-    return `${method}${capitalize(normalizedPath)}`;
+    return this.createNameFromPath(method, path);
   }
 
   /**
    * Generates type information for a single client function
-   * @param method - HTTP method
-   * @param path - URL path
-   * @param operation - OpenAPI operation object
-   * @returns Client function type information
    */
   private generateClientType(
     method: string,
@@ -86,31 +74,7 @@ class ClientGenerator {
   }
 
   /**
-   * Iterates over paths in an OpenAPI document
-   * @param openApiDocument - The OpenAPI document
-   * @param callback - Callback function to execute for each path
-   */
-  private iterateOverPaths(
-    openApiDocument: OpenApiDocument,
-    callback: (
-      path: string,
-      method: string,
-      operation: OpenApiOperation
-    ) => void
-  ): void {
-    if (!openApiDocument.paths) return;
-
-    for (const [path, pathItem] of Object.entries(openApiDocument.paths)) {
-      for (const [method, operation] of Object.entries(pathItem)) {
-        callback(path, method, operation);
-      }
-    }
-  }
-
-  /**
    * Generates client functions for all paths in an OpenAPI document
-   * @param openApiDocument - The OpenAPI document
-   * @returns Array of client function declarations
    */
   public generateClients(openApiDocument: OpenApiDocument): string[] {
     const fileLines: string[] = [];
@@ -159,10 +123,11 @@ class ClientGenerator {
         )}\n}`
       );
 
-      const finalRequestType = requestType ? requestType : "undefined";
-      const finalResponseType = responseType ? responseType : "undefined";
-      const finalPathParamsType = pathParamsType ? pathParamsType : "{}";
-      const finalQueryParamsType = queryParamsType ? queryParamsType : "{}";
+      const finalRequestType = requestType ?? "undefined";
+      const finalResponseType = responseType ?? "undefined";
+
+      const finalPathParamsType = pathParamsType ?? "{}";
+      const finalQueryParamsType = queryParamsType ?? "{}";
 
       fileLines.push(`export const ${name} = (
   args: ${argsInterfaceName}
@@ -182,10 +147,11 @@ class ClientGenerator {
 
 /**
  * Generates client functions from an OpenAPI document
- * @param openApiDocument - The OpenAPI document to generate clients from
- * @returns Array of client function declarations
  */
-export const generateClients = (openApiDocument: OpenApiDocument): string[] => {
-  const generator = new ClientGenerator();
+export const generateClients = (
+  openApiDocument: OpenApiDocument,
+  config: GeneratorConfig
+): string[] => {
+  const generator = new ClientGenerator(config);
   return generator.generateClients(openApiDocument);
 };
